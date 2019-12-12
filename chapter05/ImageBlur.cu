@@ -18,7 +18,6 @@
 #include "../common/cpu_bitmap.h"
 
 #define DIM 1024
-#define PI 3.1415926535897932f
 
 __global__ void kernel( unsigned char *ptr ) {
     // map from threadIdx/BlockIdx to pixel position
@@ -26,19 +25,20 @@ __global__ void kernel( unsigned char *ptr ) {
     int y = threadIdx.y + blockIdx.y * blockDim.y;
     int offset = x + y * blockDim.x * gridDim.x;
 
-    __shared__ float    shared[16][16];
+    __shared__ unsigned char    shared[16][16];
 
     // now calculate the value at that position
-    const float period = 128.0f;
-
-    shared[threadIdx.x][threadIdx.y] =
-            255 * (sinf(x*2.0f*PI/ period) + 1.0f) *
-                  (sinf(y*2.0f*PI/ period) + 1.0f) / 4.0f;
+    shared[threadIdx.x][threadIdx.y] = ptr[offset];
 
     // removing this syncthreads shows graphically what happens
     // when it doesn't exist.  this is an example of why we need it.
     __syncthreads();
-
+		unsigned char t,b,l,r,average;
+		t = shared[15-threadIdx.x][15-threadIdx.y];
+		b = shared[15-threadIdx.x][15-threadIdx.y];
+		l = shared[15-threadIdx.x][15-threadIdx.y];
+		r = shared[15-threadIdx.x][15-threadIdx.y];
+		average = shared[15-threadIdx.x][15-threadIdx.y];
     ptr[offset*4 + 0] = 0;
     ptr[offset*4 + 1] = shared[15-threadIdx.x][15-threadIdx.y];
     ptr[offset*4 + 2] = 0;
