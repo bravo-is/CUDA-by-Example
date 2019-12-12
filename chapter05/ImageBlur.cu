@@ -99,7 +99,8 @@ int main( void ) {
 	DataBlock   data;
 	CPUBitmap bitmap( DIM, DIM, &data );
 	unsigned char    *dev_bitmap;
-	draw (dev_bitmap)
+	unsigned char *ptr = bitmap.get_ptr();
+	draw (ptr);
 
 	HANDLE_ERROR( cudaMalloc( (void**)&dev_bitmap,
 														bitmap.image_size() ) );
