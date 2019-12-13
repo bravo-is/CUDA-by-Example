@@ -199,9 +199,9 @@ int main( void ) {
 
     float *inputGrid = (float*)malloc( imageSize );
     for (int i=0; i<DIM*DIM; i++) {
-        cellState[i] = 0.0f;
+        unputGrid[i] = 0.0f;
     }
-    draw( inputGrid )
+    draw( inputGrid );
 
     HANDLE_ERROR( cudaMemcpy( data.dev_inSrc, inputGrid,
                               imageSize,

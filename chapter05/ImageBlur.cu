@@ -28,21 +28,28 @@ __global__ void kernel( unsigned char *ptr ) {
     __shared__ unsigned char    shared[16][16];
 
     // now calculate the value at that position
-    shared[threadIdx.x][threadIdx.y] = ptr[offset];
+    shared[threadIdx.x][threadIdx.y] = ptr[offset]; //MIGHT WORK?
 
     // removing this syncthreads shows graphically what happens
     // when it doesn't exist.  this is an example of why we need it.
     __syncthreads();
-		unsigned char t,b,l,r,average;
-		t = shared[15-threadIdx.x][15-threadIdx.y];
-		b = shared[15-threadIdx.x][15-threadIdx.y];
-		l = shared[15-threadIdx.x][15-threadIdx.y];
-		r = shared[15-threadIdx.x][15-threadIdx.y];
-		average = shared[15-threadIdx.x][15-threadIdx.y];
-    ptr[offset*4 + 0] = 0;
-    ptr[offset*4 + 1] = shared[15-threadIdx.x][15-threadIdx.y];
-    ptr[offset*4 + 2] = 0;
-    ptr[offset*4 + 3] = 255;
+ 		if (x == 0) x++;
+		if (x == DIM-1) x--;
+		if (y == 0) y++;
+		if (y == DIM-1) y--;
+
+		unsigned char t, l, c, r, b, tl, tr, bl, br, average;
+		t = shared[threadIdx.x][threadIdx.y+1];
+		l = shared[threadIdx.x-1][threadIdx.y];
+		c = shared[threadIdx.x][threadIdx.y];
+		r = shared[threadIdx.x+1][threadIdx.y];
+		b = shared[threadIdx.x][threadIdx.y-1];
+		tl = shared[threadIdx.x-1][threadIdx.y+1];
+		tr = shared[threadIdx.x+1][threadIdx.y+1];
+		bl = shared[threadIdx.x-1][threadIdx.y-1];
+		br = shared[threadIdx.x+1][threadIdx.y-1];
+		average = (t+l+c+r+b+tl+tr+bl+br)/9;
+    ptr[offset = average;
 }
 
 // globals needed by the update routine
