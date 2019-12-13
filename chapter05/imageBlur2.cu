@@ -1,10 +1,17 @@
 /*
-MODIFIED FROM CUDA BY EXAMPLE CH.7
-Code Sustantially Modified into Conway's Game of Life by
-Israel Bravo, Smit Patel, Prathamesh Bramhankar
-for UC-Parallel Computing-Fall Semester-2019
-*/
-
+ * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
+ *
+ * NVIDIA Corporation and its licensors retain all intellectual property and
+ * proprietary rights in and to this software and related documentation.
+ * Any use, reproduction, disclosure, or distribution of this software
+ * and related documentation without an express license agreement from
+ * NVIDIA Corporation is strictly prohibited.
+ *
+ * Please refer to the applicable NVIDIA end user license agreement (EULA)
+ * associated with this source code for terms and conditions that govern
+ * your use of this NVIDIA software.
+ *
+ */
 
 #include "cuda.h"
 #include "../common/book.h"
@@ -45,7 +52,7 @@ __global__ void GOL_kernel( float *dst, bool dstOut ) {
       br = tex2D(texOut,x+1,y+1);//bottom-right
     }
     average = (t+l+r+b+tl+tr+bl+br+c)/9;
-    //Game of Life Rules
+    //boxblur
     dst[offset] = average;
 }
 
@@ -190,17 +197,16 @@ int main( void ) {
                                    desc, DIM, DIM,
                                    sizeof(float) * DIM ) );
 
-    // populate the board
-    float *cellState = (float*)malloc( imageSize );
+    float *inputGrid = (float*)malloc( imageSize );
     for (int i=0; i<DIM*DIM; i++) {
         cellState[i] = 0.0f;
     }
-    draw( cellState )
+    draw( inputGrid )
 
-    HANDLE_ERROR( cudaMemcpy( data.dev_inSrc, cellState,
+    HANDLE_ERROR( cudaMemcpy( data.dev_inSrc, inputGrid,
                               imageSize,
                               cudaMemcpyHostToDevice ) );
-    free( cellState );
+    free( inputGrid );
 
     bitmap.anim_and_exit( (void (*)(void*,int))anim_gpu,
                            (void (*)(void*))anim_exit );
